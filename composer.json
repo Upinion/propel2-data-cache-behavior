@@ -1,5 +1,5 @@
 {
-    "name": "thefuriouscoder/propel2-data-cache-behavior",
+    "name": "upinion/propel2-data-cache-behavior",
     "type": "propel-behavior",
     "description": "A Propel ORM behavior that provide auto data caching for model and collections. Based on snakano/propel-data-cache-behavior",
     "keywords": ["propel", "behavior", "cache"],
@@ -22,13 +22,10 @@
     "require": {
         "php": ">=5.3.3",
         "propel/propel": "~2.0@dev",
-        "thefuriouscoder/doctrine-cache-factory": "dev-master"
+        "upinion/doctrine-cache-factory": "dev-master"
     },
     "extra": {
         "name": "data_cache",
         "class": "TFC\\Propel\\Behavior\\DataCache\\DataCacheBehavior",
-	    "branch-alias": {
-		    "dev-master": "1.0.x-dev"
-	    }
     }
 }
