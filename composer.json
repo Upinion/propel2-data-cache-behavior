@@ -26,6 +26,6 @@
     },
     "extra": {
         "name": "data_cache",
-        "class": "TFC\\Propel\\Behavior\\DataCache\\DataCacheBehavior",
+        "class": "TFC\\Propel\\Behavior\\DataCache\\DataCacheBehavior"
     }
 }
