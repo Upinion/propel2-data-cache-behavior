@@ -300,7 +300,7 @@ public function find(ConnectionInterface \$con = null)
 
     \$data = \$criteria->getFormatter()->init(\$criteria)->format(\$dataFetcher);
 
-    if (\$this->isCacheEnable()) {
+    if (\$this->isCacheEnable() && \$data instanceof \\Propel\\Runtime\\Collection\\ObjectCollection) {
         {$queryClassName}::cacheStore(\$this->getCacheKey(), \$data, \$this->getLifeTime());
     }
 
@@ -345,7 +345,7 @@ public function findOne(ConnectionInterface \$con  = null)
 
     \$data = \$criteria->getFormatter()->init(\$criteria)->formatOne(\$dataFetcher);
 
-    if (\$this->isCacheEnable()) {
+    if (\$this->isCacheEnable() && \$data instanceof {$className}n) {
         {$queryClassName}::cacheStore(\$this->getCacheKey(), \$data, \$this->getLifeTime());
     }
 
@@ -385,4 +385,3 @@ public function findOne(ConnectionInterface \$con  = null)
         $parser->replaceMethod('findPk', $script);
     }
 }
-    
