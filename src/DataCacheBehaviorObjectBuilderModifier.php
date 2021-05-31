@@ -69,7 +69,7 @@ class DataCacheBehaviorObjectBuilderModifier
                 && !in_array($ff->getTable()->getPhpName(), $foreignClasses)
             ) {
                 $foreignClasses[] = $ff->getTable()->getPhpName();
-                $this->addCacheManyForeignKey($parser, $ff->getForeignTable()->getPhpName());
+                $this->addCacheManyForeignKey($parser, $ff->getTable()->getPhpName());
             }
         }
         $script = $parser->getCode();
