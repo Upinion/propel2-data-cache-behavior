@@ -23,6 +23,7 @@ class DataCacheBehaviorQueryBuilderModifier
     protected $behavior;
     protected $builder;
     protected $table;
+    protected $autoPurge;
 
     protected $tableClassName;
 
@@ -30,13 +31,15 @@ class DataCacheBehaviorQueryBuilderModifier
     {
         $this->behavior = $behavior;
         $this->table = $behavior->getTable();
+        $this->autoPurge = $behavior->getParameter("auto_purge") === true
+            || strtolower($behavior->getParameter("auto_purge")) === "true";
     }
 
     public function postUpdateQuery($builder)
     {
         $queryClassName = $builder->getStubQueryBuilder()->getClassname();
 
-        return $this->behavior->getParameter("auto_purge") ?
+        return $this->autoPurge ?
             "{$queryClassName}::purgeCache();" : "";
 
     }
@@ -367,7 +370,7 @@ public function findOne(ConnectionInterface \$con  = null)
 
     protected function replaceDoDeleteAll(&$parser)
     {
-        if ($this->behavior->getParameter("auto_purge")) {
+        if ($this->autoPurge) {
             $queryClassName = $this->builder->getStubQueryBuilder()->getClassname();
 
             $search  = "\$con->commit();";

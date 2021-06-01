@@ -23,11 +23,14 @@ class DataCacheBehaviorObjectBuilderModifier
     protected $behavior;
     protected $builder;
     protected $table;
+    protected $autoPurge;
 
     public function __construct($behavior)
     {
         $this->behavior = $behavior;
         $this->table    = $behavior->getTable();
+        $this->autoPurge = $behavior->getParameter("auto_purge") === true
+            || strtolower($behavior->getParameter("auto_purge")) === "true";
 
     }
 
@@ -35,7 +38,7 @@ class DataCacheBehaviorObjectBuilderModifier
     {
         $queryClassName = $builder->getStubQueryBuilder()->getClassname();
 
-        return $this->behavior->getParameter("auto_purge") ?
+        return $this->autoPurge ?
             "{$queryClassName}::purgeCache();" : "";
     }
 
