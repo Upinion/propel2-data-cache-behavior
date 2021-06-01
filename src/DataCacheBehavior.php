@@ -29,6 +29,22 @@ class DataCacheBehavior extends \Propel\Generator\Model\Behavior
     protected $objectBuilderModifier;
     protected $queryBuilderModifier;
 
+    public function __construct() {
+        $this->setTableModificationOrder(100);
+    }
+
+    public function modifyTable() {
+        $table = $this->getTable();
+        if ($table->hasBehavior('i18n')) {
+            $behavior = $table->getBehavior('i18n');
+            $behavior->getI18nTable()->addBehavior([
+                'name' => 'data_cache',
+            ]);
+            $behavior->getI18nTable()->getBehavior('data_cache')
+                ->setParameters($this->getParameters());
+        }
+    }
+
     public function getQueryBuilderModifier()
     {
         if (is_null($this->queryBuilderModifier)) {
