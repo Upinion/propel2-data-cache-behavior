@@ -345,7 +345,7 @@ public function findOne(ConnectionInterface \$con  = null)
 
     \$data = \$criteria->getFormatter()->init(\$criteria)->formatOne(\$dataFetcher);
 
-    if (\$this->isCacheEnable() && \$data instanceof {$className}n) {
+    if (\$this->isCacheEnable() && \$data instanceof {$className}) {
         {$queryClassName}::cacheStore(\$this->getCacheKey(), \$data, \$this->getLifeTime());
     }
 
