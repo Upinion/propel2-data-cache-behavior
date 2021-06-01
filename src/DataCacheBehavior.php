@@ -25,6 +25,7 @@ class DataCacheBehavior extends \Propel\Generator\Model\Behavior
         "backend"    => "apc",
         "lifetime"   => 3600,
         "auto_cache" => true,
+        "auto_purge" => true,
     );
     protected $objectBuilderModifier;
     protected $queryBuilderModifier;

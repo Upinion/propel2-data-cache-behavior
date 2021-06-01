@@ -35,7 +35,8 @@ class DataCacheBehaviorObjectBuilderModifier
     {
         $queryClassName = $builder->getStubQueryBuilder()->getClassname();
 
-        return "{$queryClassName}::purgeCache();";
+        return $this->behavior->getParameter("auto_purge") ?
+            "{$queryClassName}::purgeCache();" : "";
     }
 
     public function postDelete($builder)

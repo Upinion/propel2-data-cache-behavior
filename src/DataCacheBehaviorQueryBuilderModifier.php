@@ -36,7 +36,9 @@ class DataCacheBehaviorQueryBuilderModifier
     {
         $queryClassName = $builder->getStubQueryBuilder()->getClassname();
 
-        return "{$queryClassName}::purgeCache();";
+        return $this->behavior->getParameter("auto_purge") ?
+            "{$queryClassName}::purgeCache();" : "";
+
     }
 
     public function postDeleteQuery($builder)
@@ -365,14 +367,16 @@ public function findOne(ConnectionInterface \$con  = null)
 
     protected function replaceDoDeleteAll(&$parser)
     {
-        $queryClassName = $this->builder->getStubQueryBuilder()->getClassname();
+        if ($this->behavior->getParameter("auto_purge")) {
+            $queryClassName = $this->builder->getStubQueryBuilder()->getClassname();
 
-        $search  = "\$con->commit();";
-        $replace = "\$con->commit();\n            {$queryClassName}::purgeCache();";
-        $script  = $parser->findMethod('doDeleteAll');
-        $script  = str_replace($search, $replace, $script);
+            $search  = "\$con->commit();";
+            $replace = "\$con->commit();\n            {$queryClassName}::purgeCache();";
+            $script  = $parser->findMethod('doDeleteAll');
+            $script  = str_replace($search, $replace, $script);
 
-        $parser->replaceMethod("doDeleteAll", $script);
+            $parser->replaceMethod("doDeleteAll", $script);
+        }
     }
 
     protected function replaceFindPk(&$parser)
