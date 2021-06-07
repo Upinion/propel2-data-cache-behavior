@@ -76,6 +76,7 @@ protected \$cacheLifeTime = {$lifetime};
         $this->addCacheFetch($script);
         $this->addCacheStore($script);
         $this->addCacheDelete($script);
+        $this->addSetCache($script);
         $this->addSetCacheEnable($script);
         $this->addSetCacheDisable($script);
         $this->addIsCacheEnable($script);
@@ -167,6 +168,18 @@ public static function cacheDelete(\$key)
     \$driver->setNamespace({$this->tableClassName}::TABLE_NAME);
 
     return \$driver->delete(\$key);
+}
+        ";
+    }
+
+    protected function addSetCache(&$script)
+    {
+        $script .= "
+public function setCache(\$value)
+{
+    \$this->cacheEnable = \$value;
+
+    return \$this;
 }
         ";
     }

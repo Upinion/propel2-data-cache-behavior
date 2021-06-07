@@ -90,7 +90,7 @@ class DataCacheBehaviorObjectBuilderModifier
         );
         $script = str_replace(
             "Child".$phpClass."Query::create()",
-            "(\$enableCache ? \nChild".$phpClass."Query::create()->setCacheEnable()\n:\nChild".$phpClass."Query::create())",
+            "Child".$phpClass."Query::create()\n->setCache(\$enableCache)",
             $script
         );
 
@@ -108,7 +108,7 @@ class DataCacheBehaviorObjectBuilderModifier
         );
         $script = str_replace(
             "Child".$phpClass."Query::create(null, \$criteria)",
-            "(\$enableCache ? \nChild".$phpClass."Query::create(null, \$criteria)->setCacheEnable()\n:\nChild".$phpClass."Query::create(null, \$criteria))",
+            "Child".$phpClass."Query::create(null, \$criteria)\n->setCache(\$enableCache)",
             $script
         );
 
@@ -129,7 +129,7 @@ class DataCacheBehaviorObjectBuilderModifier
             );
             $script = str_replace(
                 "Child".$phpClass."Query::create()",
-                "(\$enableCache ? \nChild".$phpClass."Query::create()->setCacheEnable()\n:\nChild".$phpClass."Query::create())",
+                "Child".$phpClass."Query::create()\n->setCache(\$enableCache)",
                 $script
             );
 
@@ -145,7 +145,7 @@ class DataCacheBehaviorObjectBuilderModifier
         );
         $script = str_replace(
             "Child".$phpClass."Query::create(null, \$criteria)",
-            "(\$enableCache ? \nChild".$phpClass."Query::create(null, \$criteria)->setCacheEnable()\n:\nChild".$phpClass."Query::create(null, \$criteria))",
+            "Child".$phpClass."Query::create(null, \$criteria)\n->setCache(\$enableCache)",
             $script
         );
 

@@ -21,7 +21,6 @@
     },
     "require": {
         "php": ">=5.3.3",
-        "propel/propel": "~2.0@dev",
         "upinion/doctrine-cache-factory": "dev-master"
     },
     "extra": {
