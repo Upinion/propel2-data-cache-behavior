@@ -24,6 +24,7 @@ class DataCacheBehaviorObjectBuilderModifier
     protected $builder;
     protected $table;
     protected $autoPurge;
+    protected $hasNestedSet;
 
     public function __construct($behavior)
     {
@@ -31,6 +32,7 @@ class DataCacheBehaviorObjectBuilderModifier
         $this->table    = $behavior->getTable();
         $this->autoPurge = $behavior->getParameter("auto_purge") === true
             || strtolower($behavior->getParameter("auto_purge")) === "true";
+        $this->hasNestedSet = $behavior->getTable()->hasBehavior("nested_set");
 
     }
 
@@ -76,6 +78,11 @@ class DataCacheBehaviorObjectBuilderModifier
                 $this->addCacheManyForeignKey($parser, $ff->getTable()->getPhpName());
             }
         }
+
+        if ($this->hasNestedSet) {
+            $this->addNestedSet($parser, $this->table->getPhpName());
+        }
+
         $script = $parser->getCode();
     }
 
@@ -150,5 +157,42 @@ class DataCacheBehaviorObjectBuilderModifier
         );
 
         $parser->replaceMethod($methodName, $script);
+    }
+
+    public function addNestedSet(&$parser, $phpClass)
+    {
+        foreach (["getParent","getPrevSibling","getNextSibling"] as $methodName) {
+            $script = $parser->findMethod($methodName);
+            $script = str_replace(
+                "ConnectionInterface \$con = null",
+                "ConnectionInterface \$con = null, \$enableCache = false",
+                $script
+            );
+            $script = str_replace(
+                "Child".$phpClass."Query::create()",
+                "Child".$phpClass."Query::create()\n->setCache(\$enableCache)",
+                $script
+            );
+
+            $parser->replaceMethod($methodName, $script);
+        }
+
+
+        foreach (["getFirstChild","getLastChild","getChildren","getSiblings","getDescendants","getBranch","getAncestors"] as $methodName) {
+            $methodName = "getLastChild";
+            $script = $parser->findMethod($methodName);
+            $script = str_replace(
+                "ConnectionInterface \$con = null",
+                "ConnectionInterface \$con = null, \$enableCache = false",
+                $script
+            );
+            $script = str_replace(
+                "Child".$phpClass."Query::create(null, \$criteria)",
+                "Child".$phpClass."Query::create(null, \$criteria)\n->setCache(\$enableCache)",
+                $script
+            );
+
+            $parser->replaceMethod($methodName, $script);
+        }
     }
 }
