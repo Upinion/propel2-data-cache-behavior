@@ -179,7 +179,6 @@ class DataCacheBehaviorObjectBuilderModifier
 
 
         foreach (["getFirstChild","getLastChild","getChildren","getSiblings","getDescendants","getBranch","getAncestors"] as $methodName) {
-            $methodName = "getLastChild";
             $script = $parser->findMethod($methodName);
             $script = str_replace(
                 "ConnectionInterface \$con = null",
