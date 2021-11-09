@@ -123,21 +123,7 @@ public static function cacheFetch(\$key)
 
     \$result = \$driver->fetch(\$key);
 
-    if (\$result !== null) {
-        if (\$result instanceof \\ArrayAccess) {
-            foreach (\$result as \$element) {
-                if (\$element instanceof {$objectClassName}) {
-                    {$this->tableClassName}::addInstanceToPool(\$element);
-                }
-            }
-        } else if (\$result instanceof {$objectClassName}) {
-            {$this->tableClassName}::addInstanceToPool(\$result);
-        }
-    }
-    
     return \$result;
-
-
 }
         ";
     }
@@ -228,7 +214,7 @@ public function getCacheKey()
     }
     \$params      = array();
     \$sql_hash    = hash('md4', \$this->createSelectSql(\$params));
-    \$params_hash = hash('md4', json_encode(\$params));
+    \$params_hash = hash('md4', json_encode(\$params).get_class(\$this->getFormatter()));
     \$locale      = \$this->cacheLocale ? '_' . \$this->cacheLocale : '';
     \$this->cacheKey = \$sql_hash . '_' . \$params_hash . \$locale;
 
@@ -302,10 +288,11 @@ public function find(ConnectionInterface \$con = null)
 {
     if (\$this->isCacheEnable() && \$cache = {$queryClassName}::cacheFetch(\$this->getCacheKey())) {
         if (\$cache instanceof \\Propel\\Runtime\\Collection\\ObjectCollection) {
-            \$formatter = \$this->getFormatter()->init(\$this);
+            \$criteria = \$this->isKeepQuery() ? clone \$this : \$this;
+            \$formatter = \$criteria->getFormatter()->init(\$criteria);
             \$cache->setFormatter(\$formatter);
+            return \$cache;
         }
-        return \$cache;
     }
 
     if (null === \$con) {
