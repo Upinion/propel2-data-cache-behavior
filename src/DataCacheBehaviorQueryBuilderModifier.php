@@ -80,6 +80,7 @@ protected \$cacheLifeTime = {$lifetime};
         $this->addSetCacheEnable($script);
         $this->addSetCacheDisable($script);
         $this->addIsCacheEnable($script);
+        $this->addCacheGetFormatter($script);
         $this->addGetCacheKey($script);
         $this->addSetCacheKey($script);
         $this->addSetLocale($script);
@@ -207,14 +208,15 @@ public function isCacheEnable()
     protected function addGetCacheKey(&$script)
     {
         $script .= "
-public function getCacheKey()
+public function getCacheKey(\$overrideFormatter = null)
 {
     if (\$this->cacheKey) {
         return \$this->cacheKey;
     }
+    \$formatter   = \$overrideFormatter ? \$overrideFormatter : \$this->getFormatter();
     \$params      = array();
     \$sql_hash    = hash('md4', \$this->createSelectSql(\$params));
-    \$params_hash = hash('md4', json_encode(\$params).get_class(\$this->getFormatter()));
+    \$params_hash = hash('md4', json_encode(\$params).get_class(\$formatter));
     \$locale      = \$this->cacheLocale ? '_' . \$this->cacheLocale : '';
     \$this->cacheKey = \$sql_hash . '_' . \$params_hash . \$locale;
 
@@ -269,6 +271,25 @@ public function getLifeTime()
         ";
     }
 
+    protected function addCacheGetFormatter(&$script)
+    {
+        // Problem with getFormatter overwriting the correct formatter   
+        $script .= "
+private function _cacheGetFormatter()
+{
+         if (\$this->select === null) {
+            // leave early
+            return \$this->getFormatter();
+        }
+
+        // select() needs the PropelSimpleArrayFormatter if no formatter given
+        if (\$this->formatter === null) {
+            return new \Propel\Runtime\Formatter\SimpleArrayFormatter();
+        }
+}
+        ";
+    }
+
     protected function addFind(&$script)
     {
         $queryClassName = $this->builder->getStubQueryBuilder()->getClassname();
@@ -286,12 +307,15 @@ public function getLifeTime()
  */
 public function find(ConnectionInterface \$con = null)
 {
-    if (\$this->isCacheEnable() && \$cache = {$queryClassName}::cacheFetch(\$this->getCacheKey())) {
+    \$cacheFormatter = \$this->_cacheGetFormatter();
+    if (\$this->isCacheEnable() && \$cache = {$queryClassName}::cacheFetch(\$this->getCacheKey(\$cacheFormatter))) {
         if (\$cache instanceof \\Propel\\Runtime\\Collection\\ObjectCollection) {
             \$criteria = \$this->isKeepQuery() ? clone \$this : \$this;
             \$formatter = \$criteria->getFormatter()->init(\$criteria);
             \$cache->setFormatter(\$formatter);
             return \$cache;
+        } else if (is_array(\$cache)) {
+            return \$cache; 
         }
     }
 
@@ -306,6 +330,8 @@ public function find(ConnectionInterface \$con = null)
     \$data = \$criteria->getFormatter()->init(\$criteria)->format(\$dataFetcher);
 
     if (\$this->isCacheEnable() && \$data instanceof \\Propel\\Runtime\\Collection\\ObjectCollection) {
+        {$queryClassName}::cacheStore(\$this->getCacheKey(), \$data, \$this->getLifeTime());
+    } else if (\$this->isCacheEnable() && is_array(\$data)) {
         {$queryClassName}::cacheStore(\$this->getCacheKey(), \$data, \$this->getLifeTime());
     }
 
@@ -333,7 +359,8 @@ public function find(ConnectionInterface \$con = null)
  */
 public function findOne(ConnectionInterface \$con  = null)
 {
-    if (\$this->isCacheEnable() && \$cache = {$queryClassName}::cacheFetch(\$this->getCacheKey())) {
+    \$cacheFormatter = \$this->_cacheGetFormatter();
+    if (\$this->isCacheEnable() && \$cache = {$queryClassName}::cacheFetch(\$this->getCacheKey(\$cacheFormatter))) {
         if (\$cache instanceof {$className}) {
             return \$cache;
         }
