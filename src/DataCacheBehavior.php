@@ -34,7 +34,7 @@ class DataCacheBehavior extends \Propel\Generator\Model\Behavior
         $this->setTableModificationOrder(100);
     }
 
-    public function modifyTable() {
+    public function modifyTable(): void {
         $table = $this->getTable();
         if ($table->hasBehavior('i18n')) {
             $behavior = $table->getBehavior('i18n');
